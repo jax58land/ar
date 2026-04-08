@@ -298,7 +298,7 @@ nav {
 }
 .card-wrap:hover .card-glow { opacity: 1; }
 
-/* ── Card viewer: CSS-only orbital preview ── */
+/* ── Card viewer ── */
 .card-viewer {
   position: relative;
   height: 200px; overflow: hidden;
@@ -307,6 +307,95 @@ nav {
     var(--card-orb-bg, rgba(99,102,241,.08)), transparent 70%);
 }
 .card-wrap:nth-child(1) .card-viewer { height: 260px; }
+
+.card-viewer model-viewer {
+  width: 100%; height: 100%;
+  background: transparent;
+  --poster-color: transparent;
+}
+
+/* Orbital scene (fallback / no GLB) */
+.orb-scene {
+  position: relative;
+  width: 140px; height: 140px;
+}
+.card-wrap:nth-child(1) .orb-scene { width: 180px; height: 180px; }
+
+.orb-core {
+  position: absolute; inset: 25%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%,
+    rgba(255,255,255,.28) 0%,
+    var(--card-orb-a, rgba(99,102,241,1)) 40%,
+    var(--card-orb-b, rgba(168,85,247,1)) 100%);
+  box-shadow:
+    0 0 30px var(--card-orb-glow, rgba(99,102,241,.7)),
+    inset 0 0 20px rgba(255,255,255,.1);
+  animation: orb-breathe 4s ease-in-out infinite;
+}
+@keyframes orb-breathe {
+  0%,100% { transform: scale(1); box-shadow: 0 0 30px var(--card-orb-glow), inset 0 0 20px rgba(255,255,255,.1); }
+  50%      { transform: scale(1.06); box-shadow: 0 0 50px var(--card-orb-glow), inset 0 0 25px rgba(255,255,255,.15); }
+}
+.orb-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+}
+.orb-ring-1 {
+  border-color: var(--card-orb-r1, rgba(99,102,241,.5));
+  transform: rotateX(72deg) rotateZ(20deg);
+  animation: spin-ring-1 6s linear infinite;
+  box-shadow: 0 0 8px var(--card-orb-r1, rgba(99,102,241,.3));
+}
+.orb-ring-2 {
+  inset: 8%;
+  border-color: var(--card-orb-r2, rgba(168,85,247,.45));
+  transform: rotateX(65deg) rotateZ(-40deg);
+  animation: spin-ring-2 9s linear infinite reverse;
+}
+.orb-ring-3 {
+  inset: -8%;
+  border-color: var(--card-orb-r3, rgba(56,189,248,.3));
+  transform: rotateX(30deg) rotateZ(70deg);
+  animation: spin-ring-1 13s linear infinite;
+  opacity: .7;
+}
+.orb-ring-1::after {
+  content: '';
+  position: absolute; top: -3px; left: calc(50% - 3px);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--card-orb-a, #6366f1);
+  box-shadow: 0 0 10px var(--card-orb-a, #6366f1);
+}
+.orb-ring-2::after {
+  content: '';
+  position: absolute; bottom: -2.5px; right: calc(50% - 2.5px);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--card-orb-r2, #a855f7);
+  box-shadow: 0 0 8px var(--card-orb-r2, #a855f7);
+}
+@keyframes spin-ring-1 { to { transform: rotateX(72deg) rotateZ(380deg); } }
+@keyframes spin-ring-2 { to { transform: rotateX(65deg) rotateZ(-400deg); } }
+.orb-dots {
+  position: absolute; inset: -20%;
+  animation: spin-ring-1 20s linear infinite;
+}
+.orb-dots::before, .orb-dots::after {
+  content: '';
+  position: absolute;
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,.4);
+}
+.orb-dots::before { top: 15%; left: 10%; animation: flicker 3s ease-in-out infinite; }
+.orb-dots::after  { bottom: 20%; right: 12%; animation: flicker 4s ease-in-out infinite .8s; }
+@keyframes flicker { 0%,100%{opacity:.2} 50%{opacity:.9} }
+.orb-tag {
+  position: absolute; bottom: 14px;
+  font-size: 9px; font-weight: 700; letter-spacing: .22em;
+  color: var(--muted); text-align: center; width: 100%;
+  text-transform: uppercase;
+}
 
 /* Orbital scene */
 .orb-scene {
@@ -563,9 +652,6 @@ nav {
   .card-viewer { height: 170px; }
   .card-wrap:nth-child(1) .card-viewer { height: 210px; }
 
-  .orb-scene { width: 116px; height: 116px; }
-  .card-wrap:nth-child(1) .orb-scene { width: 148px; height: 148px; }
-
   .card-foot { padding: 12px 14px 15px; gap: 8px; }
   .foot-num  { font-size: 9px; }
   .foot-name { font-size: 14px; }
@@ -605,8 +691,6 @@ nav {
   .hero { padding: 22px 0 32px; }
   .card-viewer { height: 185px; }
   .card-wrap:nth-child(1) .card-viewer { height: 230px; }
-  .orb-scene { width: 122px; height: 122px; }
-  .card-wrap:nth-child(1) .orb-scene { width: 158px; height: 158px; }
 }
   </style>
 </head>
@@ -644,8 +728,8 @@ nav {
   <section class="hero">
     <div class="hero-tag" data-in>Augmented Reality Experience</div>
     <h1 class="hero-h1" data-in>
-      現実に溶け込む<br>
-      <span class="shine">3D の世界へ</span>
+      電設金物<br>
+      <span class="shine">AR体験</span>
     </h1>
     <p class="hero-body" data-in>
       モデルを選択してARを起動。スマートフォンのカメラで現実空間に3Dオブジェクトを配置できます。
@@ -738,9 +822,27 @@ const MODELS = [
 /* ─────────── Build cards ─────────── */
 const bento = document.getElementById('bento');
 
+const pageBase = location.href.replace(/\/[^/]*$/, '/');
+
 MODELS.forEach((m, i) => {
-  const glow = `rgba(${m.r},${m.g},${m.b},.18)`;
-  const num  = String(m.id).padStart(2,'0');
+  const glow   = `rgba(${m.r},${m.g},${m.b},.18)`;
+  const num    = String(m.id).padStart(2,'0');
+  const glbSrc  = `${pageBase}${m.id}.glb`;
+  const usdzSrc = `${pageBase}${m.id}.usdz`;
+
+  const orbHTML = `
+        <div class="orb-scene" style="
+          --card-orb-a:${m.orbA}; --card-orb-b:${m.orbB};
+          --card-orb-glow:${m.orbGlow};
+          --card-orb-r1:${m.orbR1}; --card-orb-r2:${m.orbR2}; --card-orb-r3:${m.orbR3};
+        ">
+          <div class="orb-core"></div>
+          <div class="orb-ring orb-ring-1"></div>
+          <div class="orb-ring orb-ring-2"></div>
+          <div class="orb-ring orb-ring-3"></div>
+          <div class="orb-dots"></div>
+        </div>
+        <div class="orb-tag">OBJECT ${String(m.id).padStart(2,'0')}</div>`;
 
   const wrap = document.createElement('div');
   wrap.className = 'card-wrap';
@@ -748,23 +850,20 @@ MODELS.forEach((m, i) => {
   wrap.dataset.id = m.id;
 
   wrap.innerHTML = `
-    <div class="card" style="
-      --glow:${glow};
-      --card-orb-a:${m.orbA}; --card-orb-b:${m.orbB};
-      --card-orb-glow:${m.orbGlow};
-      --card-orb-r1:${m.orbR1}; --card-orb-r2:${m.orbR2}; --card-orb-r3:${m.orbR3};
-      --card-orb-bg:${m.orbBg};
-    ">
+    <div class="card" style="--glow:${glow}; --card-orb-bg:${m.orbBg};">
       <div class="card-glow"></div>
-      <div class="card-viewer">
-        <div class="orb-scene">
-          <div class="orb-core"></div>
-          <div class="orb-ring orb-ring-1"></div>
-          <div class="orb-ring orb-ring-2"></div>
-          <div class="orb-ring orb-ring-3"></div>
-          <div class="orb-dots"></div>
-        </div>
-        <div class="orb-tag">OBJECT ${num}</div>
+      <div class="card-viewer" data-viewer="${m.id}">
+        <model-viewer
+          src="${glbSrc}"
+          ios-src="${usdzSrc}"
+          alt="${m.name}"
+          auto-rotate
+          auto-rotate-delay="300"
+          rotation-per-second="18deg"
+          interaction-prompt="none"
+          loading="lazy"
+          scale="0.01 0.01 0.01"
+        ></model-viewer>
       </div>
       <div class="card-foot">
         <div class="foot-meta">
@@ -798,6 +897,31 @@ MODELS.forEach((m, i) => {
   });
 
   bento.appendChild(wrap);
+});
+
+/* ─────────── GLB error → orb fallback ─────────── */
+document.querySelectorAll('.card-viewer model-viewer').forEach(mv => {
+  mv.addEventListener('error', () => {
+    const viewer = mv.closest('.card-viewer');
+    const id = parseInt(viewer.dataset.viewer);
+    const m  = MODELS.find(x => x.id === id);
+    if (!m) return;
+    const num = String(id).padStart(2,'0');
+    mv.remove();
+    viewer.insertAdjacentHTML('beforeend', `
+      <div class="orb-scene" style="
+        --card-orb-a:${m.orbA}; --card-orb-b:${m.orbB};
+        --card-orb-glow:${m.orbGlow};
+        --card-orb-r1:${m.orbR1}; --card-orb-r2:${m.orbR2}; --card-orb-r3:${m.orbR3};
+      ">
+        <div class="orb-core"></div>
+        <div class="orb-ring orb-ring-1"></div>
+        <div class="orb-ring orb-ring-2"></div>
+        <div class="orb-ring orb-ring-3"></div>
+        <div class="orb-dots"></div>
+      </div>
+      <div class="orb-tag">OBJECT ${num}</div>`);
+  });
 });
 
 /* ─────────── Card reveal (IntersectionObserver + fallback) ─────────── */
@@ -868,10 +992,8 @@ function openModal(m) {
   scThumb.style.setProperty('--sc-bg', `${c},.12)`);
   scThumb.style.setProperty('--sc-bd', `${c},.26)`);
 
-  const base = location.href.replace(/\/[^/]*$/, '/');
-
   if (isIOS) {
-    iosLink.href = `${base}${m.id}.usdz`;
+    iosLink.href = `${pageBase}${m.id}.usdz`;
     iosLink.style.display = 'block';
     btnAnd.style.display  = 'none';
   } else {
@@ -890,8 +1012,7 @@ function closeModal() {
 
 btnAnd.addEventListener('click', () => {
   if (!active) return;
-  const base   = location.href.replace(/\/[^/]*$/, '/');
-  const glbUrl = `${base}${active.id}.glb`;
+  const glbUrl = `${pageBase}${active.id}.glb`;
   if (isAndroid) {
     location.href =
       'intent://arvr.google.com/scene-viewer/1.0' +
