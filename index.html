@@ -7,10 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>電設金物AR体験サイト</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <!-- フォント・ライブラリはすべてローカル配信 (外部送信なし) -->
+  <script type="module" src="./model-viewer.min.js"></script>
 
   <style>
 /* ══════════════════════════════════════════════
@@ -37,7 +35,7 @@ html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif;
   min-height: 100svh;
   overflow-x: hidden;
 }
@@ -174,7 +172,7 @@ body {
   color: #fff;
   font-size: 17px;
   font-weight: 800;
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif;
   letter-spacing: .02em;
   border: none;
   cursor: pointer;
@@ -409,7 +407,7 @@ body {
 .ar-chip {
   flex-shrink: 0;
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif;
+  font-size: 10px; font-weight: 700; font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif;
   letter-spacing: .1em; white-space: nowrap;
   padding: 8px 14px; border-radius: 100px;
   background: rgba(99,102,241,.08);
@@ -496,10 +494,38 @@ body {
   overflow: hidden;
 }
 
+/* Mystery preview (random mode) */
+#mystery-preview {
+  display: none;
+  width: 100%; height: 180px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(99,102,241,.07), rgba(168,85,247,.07));
+  border: 1.5px dashed rgba(99,102,241,.25);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+}
+#mystery-preview .mystery-q {
+  font-size: 64px;
+  animation: mystery-pulse 1.2s ease-in-out infinite;
+}
+#mystery-preview .mystery-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .18em;
+  color: rgba(99,102,241,.6); text-transform: uppercase;
+}
+@keyframes mystery-pulse {
+  0%,100% { transform: scale(1);    opacity: .7; }
+  50%      { transform: scale(1.12); opacity: 1;  }
+}
+
+/* Random mode: モデル名・ミステリー切替 */
+#ar-modal.random-mode .sheet-card       { display: none; }
+#ar-modal.random-mode #mystery-preview  { display: flex; }
+
 .s-btn {
   display: flex; align-items: center; justify-content: center; gap: 9px;
   width: 100%; padding: 18px; border-radius: 18px;
-  font-size: 15px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif;
+  font-size: 15px; font-weight: 700; font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif;
   letter-spacing: .02em; border: none; cursor: pointer;
   transition: .35s var(--ease);
 }
@@ -638,6 +664,12 @@ body {
       カメラを使って現実空間に3Dモデルを配置します。<br>
       明るい場所・平らな面の上でお試しください。
     </p>
+
+    <!-- ランダムモード用ミステリー表示 -->
+    <div id="mystery-preview">
+      <div class="mystery-q">🎲</div>
+      <div class="mystery-label">何が出るかお楽しみ</div>
+    </div>
 
     <!-- model-viewer: iOS Quick Look / Android Scene Viewer を自動で処理 -->
     <model-viewer
@@ -823,7 +855,7 @@ const scName      = document.getElementById('sc-name');
 const shCard      = document.querySelector('.sheet-card');
 let active = null;
 
-function openModal(m) {
+function openModal(m, isRandom = false) {
   active = m;
   scName.textContent = m.name;
 
@@ -833,12 +865,22 @@ function openModal(m) {
   modalMv.setAttribute('src',     `${pageBase}${m.id}.glb`);
   modalMv.setAttribute('ios-src', `${pageBase}${m.id}.usdz`);
 
+  /* ランダムモード: モデル名・プレビューを隠す */
+  if (isRandom) {
+    modal.classList.add('random-mode');
+    modalMv.style.display = 'none';
+  } else {
+    modal.classList.remove('random-mode');
+    modalMv.style.display = 'block';
+  }
+
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
-  modal.classList.remove('open');
+  modal.classList.remove('open', 'random-mode');
+  modalMv.style.display = 'block';
   document.body.style.overflow = '';
   modalMv.removeAttribute('src');
   modalMv.removeAttribute('ios-src');
@@ -856,7 +898,7 @@ btnArLaunch.addEventListener('click', () => {
 /* ─────────── ランダムAR ─────────── */
 document.getElementById('btn-random').addEventListener('click', () => {
   const m = MODELS[Math.floor(Math.random() * MODELS.length)];
-  openModal(m);
+  openModal(m, true); /* true = random/mystery mode */
 });
 
 btnCls.addEventListener('click', closeModal);
